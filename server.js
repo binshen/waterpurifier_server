@@ -22,7 +22,9 @@ mongoClient.connect(config.URL, function(err, db) {
                 console.log("Error - invalid data - null or undefined");
                 return;
             }
-            console.log(moment().format('YYYY-MM-DD HH:mm:ss') + " => " + data);
+
+            var value = data.toString('hex').toLowerCase();
+            console.log(moment().format('YYYY-MM-DD HH:mm:ss') + " => " + value);
         });
 
         socket.on('end', function(){
