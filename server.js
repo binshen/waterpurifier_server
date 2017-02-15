@@ -10,6 +10,10 @@ var config = require('./config');
 function handleData(db, socket, value) {
     if(value.startsWith('5a01')) {
         socket.write(new Buffer([0x6a, 0x01, 0xff, 0xff, 0xff, 0xff, 0x01, 0xa2]));
+
+        setInterval(function() {
+            socket.write(new Buffer([0x6a, 0x01, 0xff, 0xff, 0xff, 0xff, 0x01, 0xa2]));
+        }, 6000);
     }
 }
 

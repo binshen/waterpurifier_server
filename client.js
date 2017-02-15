@@ -11,7 +11,14 @@ var client = new net.Socket();
 
 client.connect(PORT, HOST, function() {
     console.log('Connected');
-    client.write(new Buffer([ 0x5a, 0x01, 0x10, 0x01, 0x00, 0x04, 0xac, 0xcf, 0x23, 0xb8, 0x7f, 0xa2 ]));
+
+    var data = [];
+    var command = "5a0110010004accf23b87fa2";
+    command.match(/.{2}/g).forEach(function(d){
+        data.push(Number('0x' + d));
+    });
+    client.write(new Buffer(data));
+    console.log('Sent: ' + command);
 });
 
 client.on('data', function(data) {
