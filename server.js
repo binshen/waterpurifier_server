@@ -12,8 +12,10 @@ function handleData(db, socket, value) {
         socket.write(new Buffer([0x6a, 0x01, 0xff, 0xff, 0xff, 0xff, 0x01, 0xa2]));
 
         setInterval(function() {
-            socket.write(new Buffer([0x6a, 0x01, 0xff, 0xff, 0xff, 0xff, 0x01, 0xa2]));
-            console.log("++++++++++")
+            if(socket.writable) {
+                socket.write(new Buffer([0x6a, 0x01, 0xff, 0xff, 0xff, 0xff, 0x01, 0xa2]));
+                console.log("++++++++++")
+            }
         }, 6000);
     }
 }
