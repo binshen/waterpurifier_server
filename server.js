@@ -110,9 +110,10 @@ mongoClient.connect(config.URL, function(err, db) {
         socket.on('close', function(data) {
             console.log('Closed socket: ' + socket.remoteAddress +' '+ socket.remotePort);
             for (var mac in dev_sockets) {
+                var break_flag = false;
                 if(dev_sockets[mac] == socket) {
                     dev_sockets[mac] = undefined;
-                    break;
+                    break_flag = true;
                 }
                 if(Object.prototype.toString.call(app_sockets[mac]) === '[object Array]' && app_sockets[mac].length > 0) {
                     for(var i = 0; i < app_sockets[mac].length; i++) {
@@ -120,10 +121,13 @@ mongoClient.connect(config.URL, function(err, db) {
                             app_sockets[mac].splice(i, 1);
                             if(app_sockets[mac].length < 1) {
                                 app_sockets[mac] = undefined;
+                                break_flag = true;
                             }
-                            //break;
                         }
                     }
+                }
+                if(break_flag) {
+                    break;
                 }
             }
         });
