@@ -18,27 +18,67 @@ global.app_sockets = {};
 
 function handleDevData(db, socket, value, mac, ctrl) {
 
+    var fields = value.match(/.{2}/g);
+
     //心跳包
     if(ctrl == '00') {
 
+        //剩余流量
+        var x9 =  method.toDec(fields[16]) * 256 + method.toDec(fields[17]);
+        //已用流量
+        var x11 = method.toDec(fields[20]) * 256 + method.toDec(fields[21]);
+        //净水TDS值
+        var x13 = method.toDec(fields[24]) * 256 + method.toDec(fields[25]);
+        //原水TDS值
+        var x14 = method.toDec(fields[26]) * 256 + method.toDec(fields[27]);
+        //第一滤芯寿命-剩余流量
+        var x15 = method.toDec(fields[28]) * 256 + method.toDec(fields[29]);
+        //第二滤芯寿命-剩余流量
+        var x16 = method.toDec(fields[30]) * 256 + method.toDec(fields[31]);
+        //第三滤芯寿命-剩余流量
+        var x17 = method.toDec(fields[32]) * 256 + method.toDec(fields[33]);
+        //第四滤芯寿命-剩余流量
+        var x18 = method.toDec(fields[34]) * 256 + method.toDec(fields[35]);
+        //第五滤芯寿命-剩余流量
+        var x19 = method.toDec(fields[36]) * 256 + method.toDec(fields[37]);
+        //第一滤芯寿命-最大流量
+        var x20 = method.toDec(fields[38]) * 256 + method.toDec(fields[39]);
+        //第二滤芯寿命-最大流量
+        var x21 = method.toDec(fields[40]) * 256 + method.toDec(fields[41]);
+        //第三滤芯寿命-最大流量
+        var x22 = method.toDec(fields[42]) * 256 + method.toDec(fields[43]);
+        //第四滤芯寿命-最大流量
+        var x23 = method.toDec(fields[44]) * 256 + method.toDec(fields[45]);
+        //第五滤芯寿命-最大流量
+        var x24 = method.toDec(fields[46]) * 256 + method.toDec(fields[47]);
         return;
     }
 
     //用水同步
     if(ctrl == '06') {
-
+        //本次水量
+        var x6 =  method.toDec(fields[10]) * 256 + method.toDec(fields[11]);
+        //剩余流量
+        var x9 =  method.toDec(fields[16]) * 256 + method.toDec(fields[17]);
+        //已用流量
+        var x11 = method.toDec(fields[20]) * 256 + method.toDec(fields[21]);
+        //净水TDS值
+        var x13 = method.toDec(fields[24]) * 256 + method.toDec(fields[25]);
+        //原水TDS值
+        var x14 = method.toDec(fields[26]) * 256 + method.toDec(fields[27]);
         return;
     }
 
     //设备状态变更
     if(ctrl == '0C') {
-
+        //状态
+        var x4 = method.toDec(fields[9]);
         return;
     }
 }
 
 function handleAppData(db, socket, value, mac, ctrl) {
-
+/*
     var command = mac + '01' + ctrl + '000000000000000000000000000000000000000000000000000000000000000000000000000000';
 
     if(ctrl == '01') { //关机指令
@@ -72,6 +112,24 @@ function handleAppData(db, socket, value, mac, ctrl) {
         result.push(method.toDec(d));
     });
     dev_sockets[mac].write(new Buffer(result));
+*/
+
+    var command = config.COMMAND;
+    command[1] = method.toDec(mac.slice(0,2));
+    command[2] = method.toDec(mac.slice(2,4));
+    command[3] = method.toDec(mac.slice(4,6));
+    command[4] = method.toDec(mac.slice(6,7));
+    command[5] = method.toDec(mac.slice(8,10));
+    command[6] = method.toDec(mac.slice(10,12));
+    command[7] = 0x01;
+    command[8] = method.toDec(ctrl);
+
+    //充值指令
+    if(ctrl == '05') {
+
+    }
+
+    dev_sockets[mac].write(new Buffer(command));
 }
 
 
@@ -94,7 +152,7 @@ function handleData(db, socket, value, mac) {
             // });
             // dev_sockets[mac].write(new Buffer(result));
 
-            var ctrl = value.slice(14, 16);
+            var ctrl = value.slice(16, 18);
             handleAppData(db, socket, value, mac, ctrl.toUpperCase());
         }
         return;
