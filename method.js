@@ -35,3 +35,7 @@ module.exports.getMac = function(data) {
     var mac = data[6] + data[7] + data[8] + data[9] + data[10] + data[11]; //Mac
     return mac.toLowerCase();
 };
+
+module.exports.isEmpty = function(obj) {
+    return obj == undefined || obj == null;
+};

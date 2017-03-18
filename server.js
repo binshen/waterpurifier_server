@@ -16,23 +16,86 @@ var map = {
 global.dev_sockets = {};
 global.app_sockets = {};
 
+function handleDevData(db, socket, value, mac, ctrl) {
+
+    //心跳包
+    if(ctrl == '00') {
+
+        return;
+    }
+
+    //用水同步
+    if(ctrl == '06') {
+
+        return;
+    }
+
+    //设备状态变更
+    if(ctrl == '0C') {
+
+        return;
+    }
+}
+
+function handleAppData(db, socket, value, mac, ctrl) {
+
+    var command = mac + '01' + ctrl + '000000000000000000000000000000000000000000000000000000000000000000000000000000';
+
+    if(ctrl == '01') { //关机指令
+
+    } else if(ctrl == '02') { //开机指令
+
+    } else if(ctrl == '03') { //强冲指令
+
+    } else if(ctrl == '05') { //充值指令
+
+    } else if(ctrl == '07') { //滤芯复位
+
+    } else if(ctrl == '08') { //模式切换
+
+    } else if(ctrl == '09') { //系统初始化
+
+    } else if(ctrl == '0A') { //恢复出厂设置
+
+    } else if(ctrl == '0B') { //用时同步
+
+    } else if(ctrl == '0D') { //查询设备信息
+
+    } else if(ctrl == '0E') { //获取移动信号和ICCID
+
+    }
+
+    if(command.length != 94) return;
+
+    var result = [];
+    command.match(/.{2}/g).forEach(function(d){
+        result.push(method.toDec(d));
+    });
+    dev_sockets[mac].write(new Buffer(result));
+}
+
+
 function handleData(db, socket, value, mac) {
 
     //终端->平台
     if(value.startsWith('5a')) {
-
+        var ctrl = value.slice(14, 16);
+        handleDevData(db, socket, value, mac, ctrl.toUpperCase());
         return;
     }
 
     //手机->平台
     if(value.startsWith('6b')) {
-        if(dev_sockets[mac] != null && dev_sockets[mac].writable) {
-            var result = [];
-            var command = value.slice(14);
-            command.match(/.{2}/g).forEach(function(d){
-                result.push(method.toDec(d));
-            });
-            dev_sockets[mac].write(new Buffer(result));
+        if(!method.isEmpty(dev_sockets[mac]) && dev_sockets[mac].writable) {
+            // var result = [];
+            // var command = value.slice(14);
+            // command.match(/.{2}/g).forEach(function(d){
+            //     result.push(method.toDec(d));
+            // });
+            // dev_sockets[mac].write(new Buffer(result));
+
+            var ctrl = value.slice(14, 16);
+            handleAppData(db, socket, value, mac, ctrl.toUpperCase());
         }
         return;
     }
@@ -51,7 +114,7 @@ function doWork(db, socket, data) {
         if(prefix == "5a") {
             dev_sockets[mac] = socket;
         } else if(prefix == "6b") {
-            if(app_sockets[mac] == undefined || app_sockets[mac] == null) {
+            if(method.isEmpty(app_sockets[mac])) {
                 app_sockets[mac] = [];
             }
             app_sockets[mac].push(socket);
