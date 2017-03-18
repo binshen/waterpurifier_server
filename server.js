@@ -17,23 +17,14 @@ global.dev_sockets = {};
 global.app_sockets = {};
 
 function handleData(db, socket, value, mac) {
-/*
-    if(value.startsWith('5a01')) {
-        socket.write(new Buffer([0x6a, 0x01, 0xff, 0xff, 0xff, 0xff, 0x01, 0xa2]));
 
-        setInterval(function() {
-            if(socket.writable) {
-                socket.write(new Buffer([0x6a, 0x01, 0xff, 0xff, 0xff, 0xff, 0x01, 0xa2]));
-                console.log("++++++++++")
-            }
-        }, 6000);
-    }
-*/
+    //终端->平台
     if(value.startsWith('5a')) {
 
         return;
     }
 
+    //手机->平台
     if(value.startsWith('6b')) {
         if(dev_sockets[mac] != null && dev_sockets[mac].writable) {
             var result = [];
@@ -115,9 +106,10 @@ mongoClient.connect(config.URL, function(err, db) {
                     dev_sockets[mac] = undefined;
                     break_flag = true;
                 }
-                if(Object.prototype.toString.call(app_sockets[mac]) === '[object Array]' && app_sockets[mac].length > 0) {
-                    for(var i = 0; i < app_sockets[mac].length; i++) {
-                        if(app_sockets[mac][i] == socket || !app_sockets[mac][i].writable) {
+                var _sockets = app_sockets[mac];
+                if(Object.prototype.toString.call(_sockets) === '[object Array]' && _sockets.length > 0) {
+                    for(var i = 0; i < _sockets.length; i++) {
+                        if(_sockets[i] == socket || !_sockets[i].writable) {
                             app_sockets[mac].splice(i, 1);
                             if(app_sockets[mac].length < 1) {
                                 app_sockets[mac] = undefined;
