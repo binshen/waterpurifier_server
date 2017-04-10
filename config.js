@@ -4,9 +4,9 @@
 
 var config = {
 
-    HOST: "120.55.161.114",
+    HOST: "127.0.0.1",
     PORT: 9999,
-    URL: "mongodb://waterpurifier_user:w2a0t1e6r_passw0rd@120.55.161.114:27017/waterpurifier_db",
+    URL: "mongodb://user:pass@127.0.0.1:27017/my_db",
 
     COMMAND: [
         0x5A, //包头
