@@ -2,8 +2,9 @@
   "name": "waterpurifier_server",
   "version": "0.0.1",
   "dependencies": {
-    "mongodb": "~2.2.24",
-    "moment": "~2.17.1",
-    "amqplib": "~0.5.1"
+    "mongodb": "^2.2.25",
+    "moment": "^2.18.1",
+    "amqplib": "^0.5.1",
+    "is-empty": "^1.2.0"
   }
 }

@@ -7,6 +7,7 @@ var moment = require('moment');
 var mongoClient = require('mongodb').MongoClient;
 var config = require('./config');
 var method = require('./method');
+var empty = require('is-empty');
 
 var map = {
     "5a": 96,
@@ -22,7 +23,6 @@ function handleDevData(db, socket, value, mac, ctrl) {
 
     //心跳包
     if(ctrl == '00') {
-
         //剩余流量
         var x9 =  method.toDec(fields[16]) * 256 + method.toDec(fields[17]);
         //已用流量
@@ -137,42 +137,36 @@ function handleData(db, socket, value, mac) {
 
     //终端->平台
     if(value.startsWith('5a')) {
-        var ctrl = value.slice(14, 16);
-        handleDevData(db, socket, value, mac, ctrl.toUpperCase());
+        var ctrl = value.slice(14, 16).toUpperCase();
+        handleDevData(db, socket, value, mac, ctrl);
         return;
     }
 
     //手机->平台
     if(value.startsWith('6b')) {
-        if(!method.isEmpty(dev_sockets[mac]) && dev_sockets[mac].writable) {
-            // var result = [];
-            // var command = value.slice(14);
-            // command.match(/.{2}/g).forEach(function(d){
-            //     result.push(method.toDec(d));
-            // });
-            // dev_sockets[mac].write(new Buffer(result));
-
-            var ctrl = value.slice(16, 18);
-            handleAppData(db, socket, value, mac, ctrl.toUpperCase());
+        if(!empty(dev_sockets[mac]) && dev_sockets[mac].writable) {
+            var ctrl = value.slice(16, 18).toUpperCase();
+            handleAppData(db, socket, value, mac, ctrl);
         }
         return;
     }
 }
 
 function doWork(db, socket, data) {
-    if(data == "") return;
+    if(empty(data)) return;
 
-    var prefix = value.slice(0, 2);
+    var prefix = data.slice(0, 2);
     var length = map[prefix];
     if(length > 0) {
         var value = data.slice(0, length);
         if(value.length < length) return;
 
         var mac = value.slice(2, 14).toLowerCase();
-        if(prefix == "5a") {
+
+        if(prefix == "5a") { //终端数据包
             dev_sockets[mac] = socket;
-        } else if(prefix == "6b") {
-            if(method.isEmpty(app_sockets[mac])) {
+        } else if(prefix == "6b") { //app数据包
+            if(empty(app_sockets[mac])) {
                 app_sockets[mac] = [];
             }
             app_sockets[mac].push(socket);
